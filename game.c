@@ -14,37 +14,23 @@ void game_init(Game *g)
     g->score[1] = 0;
 }
 
-//throws away whatever is left on the line the user typrd
-//we need this bc if someone types letters, scanf leaves them there
-//and wed keep reading the same junk forever
-//returns 0 if we hit the end of input
-static int skip_line(void)
-{
-    int ch;
-    while ((ch = getchar()) != '\n')
-        if (ch == EOF)
-            return 0;
-    return 1;
-}
-
-//reads the 4 numbers of a move (row col row col)
+//reads one whole line and tries to get the 4 numbers of a move out of it(row col row col). we read the full line with fgets first so that if
+//someone types too few numbers we can tell them right away instead of the program just sitting there waiting for more
 //1 = got the 4 numbers, 0 = typed something wrong, -1 = input ended
 static int read_move(int *r1, int *c1, int *r2, int *c2)
 {
-    int n = scanf("%d %d %d %d", r1, c1, r2, c2);
+    char line[100];
+    char extra;
 
-    if (n == EOF)
+    if (fgets(line, sizeof(line), stdin) == NULL)
         return -1;
-    if (n != 4) {
-        //not 4 numbers, clear the line so they can try again
-        if (!skip_line())
-            return -1;
+
+    //the extra %c catches stuff after the 4 numbers like "0 0 0 1 5"
+    if (sscanf(line, "%d %d %d %d %c", r1, c1, r2, c2, &extra) != 4)
         return 0;
-    }
-    skip_line();//ignore anything extra they typed after the 4 numbers
+
     return 1;
 }
-
 //same score box as in the pdf screenshots
 static void print_scores(const Game *g)
 {
@@ -89,7 +75,7 @@ int game_run(Game *g)
             return 1;
         }
         if (status == 0) {
-            printf("Invalid input. Please enter 4 numbers, e.g. 0 0 0 1\n");
+            printf("Invalid input. Please enter exactly 4 numbers separated by spaces, e.g. 0 0 0 1\n");
             continue;  //same player tries again
         }
 
