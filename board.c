@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "board.h"
+#include "colors.h"
 
 void board_init(Board *b)
 {
@@ -27,13 +28,13 @@ void board_print(const Board *b)
 {
     int r, c;
 
-    printf("  ");
+    printf("  " CYAN);
     for (c = 0; c < DOT_COLS; c++)
         printf("%d ", c);
-    printf("\n");
+    printf(RESET "\n");
 
     for (r = 0; r < DOT_ROWS; r++) {
-        printf("%d ", r);
+        printf(CYAN "%d " RESET, r);
         for (c = 0; c < DOT_COLS; c++) {
             printf(".");
             if (c < BOX_COLS)  //last dot in the row has nothing after it
@@ -47,8 +48,13 @@ void board_print(const Board *b)
             printf("  ");
             for (c = 0; c < DOT_COLS; c++) {
                 printf("%c", b->vlines[r][c] ? '|' : ' ');
-                if (c < BOX_COLS)
-                    printf("%c", b->boxes[r][c]);
+                if (c < BOX_COLS) {
+            //owned boxes get their player's color, empty ones stay a space
+                    if (b->boxes[r][c] == ' ')
+                        printf(" ");
+                    else
+                        printf("%s%c" RESET, PLAYER_COLOR(b->boxes[r][c]), b->boxes[r][c]);
+                }
             }
             printf("\n");
         }

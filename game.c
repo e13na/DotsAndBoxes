@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "game.h"
+#include "colors.h"
 
 #define STARS "*************************************************************************"
 
@@ -35,23 +36,23 @@ static int read_move(int *r1, int *c1, int *r2, int *c2)
 static void print_scores(const Game *g)
 {
     printf("%s\n", STARS);
-    printf("Player A score: %d\n", g->score[0]);
-    printf("Player B score: %d\n", g->score[1]);
+    printf(RED "Player A" RESET " score: %d\n", g->score[0]);
+    printf(BLUE "Player B" RESET " score: %d\n", g->score[1]);
     printf("%s\n", STARS);
 }
 
 static void print_winner(const Game *g)
 {
-    printf("\n%s\nGAME OVER\n", STARS);
+    printf("\n%s\n" BOLD "GAME OVER" RESET "\n", STARS);
     printf("Player A: %d boxes\n", g->score[0]);
     printf("Player B: %d boxes\n", g->score[1]);
 
     if (g->score[0] > g->score[1])
-        printf("Player A wins!\n");
+        printf(GREEN "Player A wins!" RESET "\n");
     else if (g->score[1] > g->score[0])
-        printf("Player B wins!\n");
+        printf(GREEN "Player B wins!" RESET "\n");
     else
-        printf("It's a tie!\n"); //10-10 is possible since there are 20 boxes
+        printf(GREEN "It's a tie!" RESET "\n");  //10-10 is possible since there are 20 boxes
 
     printf("%s\n", STARS);
 }
@@ -65,8 +66,8 @@ int game_run(Game *g)
 
 //keep going until every box has an owner
     while (!board_is_full(&g->board)) {
-        printf("Player %c's turn. Enter the row and column of the first dot "
-               "(e.g., A0 -> 0 0) and second dot:\n", g->current);
+        printf("%sPlayer %c's turn." RESET " Enter the row and column of the first dot "
+            "(e.g., A0 -> 0 0) and second dot:\n", PLAYER_COLOR(g->current), g->current);
         fflush(stdout);
 
         status = read_move(&r1, &c1, &r2, &c2);
@@ -75,7 +76,7 @@ int game_run(Game *g)
             return 1;
         }
         if (status == 0) {
-            printf("Invalid input. Please enter exactly 4 numbers separated by spaces, e.g. 0 0 0 1\n");
+            printf(YELLOW "Invalid input. Please enter exactly 4 numbers separated by spaces, e.g. 0 0 0 1" RESET "\n");
             continue;  //same player tries again
         }
 
@@ -83,16 +84,16 @@ int game_run(Game *g)
 
 //for any bad move we print why and let the same player go again
         if (res == MOVE_OUT_OF_RANGE) {
-            printf("Invalid move: rows must be 0-%d and columns 0-%d.\n",
+            printf(YELLOW "Invalid move: rows must be 0-%d and columns 0-%d." RESET "\n",
                    DOT_ROWS - 1, DOT_COLS - 1);
             continue;
         }
         if (res == MOVE_NOT_ADJACENT) {
-            printf("Invalid move: the two dots must be next to each other.\n");
+            printf(YELLOW "Invalid move: the two dots must be next to each other." RESET "\n");
             continue;
         }
         if (res == MOVE_ALREADY_DRAWN) {
-            printf("Invalid move: that line is already drawn.\n");
+            printf(YELLOW "Invalid move: that line is already drawn." RESET "\n");
             continue;
         }
 
